@@ -2,19 +2,23 @@
 // About.tsx — the /about page.
 // Author: Bill Chen
 //
+// This page used to hold all of its content inline. It now composes three
+// child components. Each child owns its own JSX, CSS, and default data —
+// keeping this file short and easy to scan.
+//
 // Concepts introduced here:
-//   • Importing an image as if it were a module. Vite (the build tool) rewrites
-//     the import to the final asset URL and fingerprints it for cache-busting.
-//     That's why we can plug the imported value straight into <img src={...}>.
-//     TypeScript knows the import resolves to a `string` because of the
-//     ambient types pulled in by `src/vite-env.d.ts` (`/// <reference types="vite/client" />`).
-//   • import.meta.env.BASE_URL — the deploy prefix (e.g. "/" locally,
-//     "/react_portfolio_site_ts/" on GitHub Pages). Prepending it makes links
-//     to files in /public work no matter where the site is hosted. `BASE_URL`
-//     is typed as `string` by `vite/client`, so template-string usage below
-//     type-checks without an assertion.
+//   • Component composition. A "page" is often just a thin wrapper that
+//     assembles smaller pieces. Small components read better, are easier to
+//     test in isolation, and can be reused on other pages if needed.
+//   • Passing props. `SkillsList` requires a `title` and a `skills` array,
+//     so we hand it both explicitly. `TechStack` accepts optional props
+//     with sensible defaults, so we call it bare here.
+//   • Passing an imported constant as a prop. `DEFAULT_SKILLS` lives next
+//     to the SkillsList component; we re-use it here instead of duplicating.
 // -----------------------------------------------------------------------------
-import headshotImage from '../assets/headshot.svg';
+import AboutHero from '../components/about/AboutHero';
+import SkillsList, { DEFAULT_SKILLS } from '../components/about/SkillsList';
+import TechStack from '../components/about/TechStack';
 import './About.css';
 
 export default function About() {
@@ -22,59 +26,17 @@ export default function About() {
     <section className="about">
       <h1 className="section-title">About Me</h1>
 
-      <div className="about-grid">
-        {/* alt text is required for accessibility — describe what the image
-            shows so screen-reader users get the same information. */}
-        <img
-          className="about-headshot"
-          src={headshotImage}
-          alt="Portrait of Bill Chen"
-          width={280}
-          height={280}
-        />
+      <AboutHero />
 
-        <div>
-          <h2 className="about-name">Bill Chen</h2>
-          <p className="about-tagline">Software developer · Web + mobile</p>
+      {/* SkillsList is generic on purpose — pass any list of strings and
+          any heading. Here we hand it the default set exported alongside
+          the component. */}
+      <SkillsList title="Skills I bring to a team" skills={DEFAULT_SKILLS} />
 
-          <p>
-            I'm a software developer who enjoys turning tricky problems into simple,
-            polished user experiences. Over the past few years I've worked across the
-            stack — building React front ends, Node services, and mobile apps — and
-            picked up a deep appreciation for tests, thoughtful design, and shipping
-            small.
-          </p>
-
-          <p>
-            Outside of work I hike, read broadly, and volunteer teaching intro
-            programming at the local library. I care about writing code that is kind
-            to the next person who reads it.
-          </p>
-
-          {/*
-            The résumé PDF lives under /public. Anything in /public is copied
-            to the site root at build time (no import needed) — we just have
-            to build the correct URL to it.
-
-            `import.meta.env.BASE_URL` always ends with a slash, so simply
-            concatenating "resume.pdf" produces "/resume.pdf" on Netlify and
-            "/react_portfolio_site_ts/resume.pdf" on GitHub Pages.
-
-            `target="_blank"` opens in a new tab; `rel="noopener noreferrer"`
-            is a security best-practice for external tabs; `download` hints to
-            the browser that this should be saved-as instead of previewed.
-          */}
-          <a
-            className="btn"
-            href={`${import.meta.env.BASE_URL}resume.pdf`}
-            target="_blank"
-            rel="noopener noreferrer"
-            download
-          >
-            Download Résumé (PDF)
-          </a>
-        </div>
-      </div>
+      {/* TechStack has default props, so calling it without arguments is
+          fine. It's still a good habit to pass an explicit title when the
+          wording matters to the page. */}
+      <TechStack title="Tech I reach for" />
     </section>
   );
 }
