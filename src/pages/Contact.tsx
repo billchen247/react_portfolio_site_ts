@@ -9,6 +9,17 @@
 //   • Single change handler for a whole form: because every input has a `name`
 //     matching a key in state, one handler using `event.target` can update
 //     any field. Add a field → give it a `name` → done.
+//   • Radio buttons — a group where every <input type="radio"> shares the same
+//     `name`. Only one can be checked at a time; the checked one's `value`
+//     becomes the form's value for that name. We wrap them in a <fieldset>
+//     with a <legend> so screen readers announce the whole group + label.
+//   • Checkboxes — booleans. They report state via `event.target.checked`
+//     (not `event.target.value`), so the shared onChange handler has to
+//     branch on `event.target.type`.
+//   • <select> dropdown — a controlled dropdown mirrors a controlled text
+//     input: `value={...}` picks which <option> is selected, `onChange`
+//     fires when the user picks a different one. Pattern-wise it slots
+//     into the same shared handler as text inputs.
 //   • Functional state updater `setValues(prev => next)`: use this when the
 //     next state depends on the previous one. Safer than reading the current
 //     `formValues` directly because React can batch multiple updates.
@@ -24,11 +35,44 @@
 //     exist ONLY in the type system. It gets erased at build time (nothing
 //     ships to the browser), so it's the right choice for pure type imports
 //     like ChangeEvent / FormEvent.
+//   • TypeScript "union of string literals" — see `PreferredContactMethod`
+//     below. It restricts a field to a fixed set of values, so a typo like
+//     `preferredContactMethod: 'emial'` fails to compile.
 // -----------------------------------------------------------------------------
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Contact.css';
+
+// Union of string literals: `PreferredContactMethod` can ONLY be one of these
+// three exact strings. This is TypeScript's version of an "enum-lite" — it
+// keeps the runtime values as plain strings while giving compile-time safety.
+type PreferredContactMethod = 'email' | 'phone' | 'either';
+
+// Data for the radio-button group. Defining the options as an array (instead
+// of hard-coding three <input> tags) makes it trivial to add a new option:
+// append one entry here and every part below picks it up.
+//
+// `as const` (a "const assertion") tells TypeScript to treat the string
+// literals as their narrow literal types instead of widening them to
+// `string`, so each `value` still fits `PreferredContactMethod`.
+const CONTACT_METHOD_OPTIONS = [
+  { value: 'email', label: 'Email' },
+  { value: 'phone', label: 'Phone' },
+  { value: 'either', label: 'Either is fine' }
+] as const;
+
+// Options for the "How did you hear about me?" dropdown. `''` is the value
+// when nothing has been picked yet — pairing it with a disabled placeholder
+// <option> lets us keep the field controlled and still `required`.
+type ReferralSource = '' | 'google' | 'linkedin' | 'referral' | 'other';
+
+const REFERRAL_SOURCE_OPTIONS: { value: ReferralSource; label: string }[] = [
+  { value: 'google', label: 'Search engine (Google, DuckDuckGo, …)' },
+  { value: 'linkedin', label: 'LinkedIn' },
+  { value: 'referral', label: 'A friend or colleague' },
+  { value: 'other', label: 'Somewhere else' }
+];
 
 // Shape of the form's state. Each key is the `name` attribute of one input.
 type ContactFormValues = {
@@ -37,6 +81,9 @@ type ContactFormValues = {
   phone: string;
   email: string;
   message: string;
+  preferredContactMethod: PreferredContactMethod;
+  referralSource: ReferralSource;
+  subscribeToUpdates: boolean;
 };
 
 // Empty shape used both for the initial state and to reset after submission.
@@ -47,27 +94,54 @@ const EMPTY_FORM: ContactFormValues = {
   lastName: '',
   phone: '',
   email: '',
-  message: ''
+  message: '',
+  // Radios need SOMETHING selected as the initial state or the group will be
+  // uncontrolled. 'email' is the friendliest default here.
+  preferredContactMethod: 'email',
+  // Empty string pairs with the disabled placeholder <option> in the
+  // dropdown below, so the initial render shows "Choose one…" and the
+  // browser's `required` check will block submit until the user picks.
+  referralSource: '',
+  // Checkboxes default to unchecked (`false`). It's important the initial
+  // value matches the input type, otherwise React treats it as uncontrolled.
+  subscribeToUpdates: false
 };
 
 export default function Contact() {
-  // `formValues` holds ALL five field values as one object. Keeping related
-  // state together like this is usually simpler than five separate useState
-  // calls when the fields always change/reset together.
+  // `formValues` holds every field value as one object. Keeping related state
+  // together like this is usually simpler than N separate useState calls when
+  // the fields always change/reset together.
   const [formValues, setFormValues] = useState<ContactFormValues>(EMPTY_FORM);
   const navigate = useNavigate();
 
-  // One handler serves every input. It reads the input's `name` and `value`
-  // from the DOM event, then produces a new object with just that field
-  // updated. Notice we DO NOT mutate the old object (React needs a new
-  // reference to detect the change and re-render).
+  // One handler serves every input (text, tel, email, textarea, radio,
+  // checkbox, select). It reads the input's `name` from the DOM event,
+  // then produces a new object with just that field updated. Notice we DO
+  // NOT mutate the old object (React needs a new reference to detect the
+  // change and re-render).
   //
-  // The event type covers both <input> and <textarea>; we `as` the `name`
-  // to a known key of the form so the computed-property update is type-safe.
+  // Text/tel/email/textarea/radio/select all report their new value on
+  // `event.target.value` (radio reports the `value` attribute of the
+  // *selected* option; select reports the `value` of the chosen <option>).
+  // Checkboxes are different: they report a boolean on `event.target.checked`.
+  // We inspect `event.target.type` and pick the right one — a common
+  // pattern for "one handler, many input types".
+  //
+  // The event type is the union of every element that fires onChange in
+  // this form. Adding <HTMLSelectElement> here is what makes the shared
+  // handler compatible with the referralSource dropdown below.
   const handleFieldChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value } = event.target;
+    const target = event.target;
+    const { name, type } = target;
+    // `type === 'checkbox'` narrows `target` to HTMLInputElement inside this
+    // branch, so `target.checked` is safe to access.
+    const nextValue =
+      type === 'checkbox' && target instanceof HTMLInputElement
+        ? target.checked
+        : target.value;
+
     // Object spread: copy all previous keys, then overwrite the one that
     // changed. `[name]` is a "computed property key" — the key is the value
     // of the `name` variable, not the literal string "name".
@@ -75,12 +149,12 @@ export default function Contact() {
     // `name as keyof ContactFormValues` is a TypeScript "type assertion":
     // `event.target.name` is typed as a plain `string`, but we know it can
     // only be one of the field names we defined above. The assertion tells
-    // TS "trust me, it's one of those keys" so the computed-property assignment
-    // type-checks. At runtime this line is just a plain assignment — the
-    // assertion is erased.
+    // TS "trust me, it's one of those keys" so the computed-property
+    // assignment type-checks. At runtime this line is just a plain
+    // assignment — the assertion is erased.
     setFormValues((previousValues) => ({
       ...previousValues,
-      [name as keyof ContactFormValues]: value
+      [name as keyof ContactFormValues]: nextValue
     }));
   };
 
@@ -210,6 +284,63 @@ export default function Contact() {
             </label>
           </div>
 
+          {/* Dropdown / <select>.
+              Controlled the same way as a text input: `value={...}` picks
+              the selected <option>, `onChange` fires when the user picks a
+              different one. The FIRST <option> is a disabled placeholder
+              with an empty `value` — because our state starts as '', that
+              option renders as the visible label. Marking the <select>
+              `required` combined with the empty placeholder value lets the
+              browser's built-in validation block submit until a real option
+              is picked. */}
+          <label className="form-field">
+            <span>How did you hear about me?</span>
+            <select
+              name="referralSource"
+              value={formValues.referralSource}
+              onChange={handleFieldChange}
+              required
+            >
+              <option value="" disabled>
+                Choose one…
+              </option>
+              {REFERRAL_SOURCE_OPTIONS.map((option) => (
+                // `key` on <option> follows the same rule as any other list:
+                // use a stable unique value (the option's `value` here).
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          {/* Radio-button group.
+              <fieldset> + <legend> is the semantic HTML for grouped form
+              controls: the <legend> becomes the group's accessible name, so
+              screen readers announce "Preferred contact method — Email,
+              radio button, 1 of 3" instead of just "Email". */}
+          <fieldset className="form-fieldset">
+            <legend>Preferred contact method</legend>
+            <div className="radio-group">
+              {CONTACT_METHOD_OPTIONS.map((option) => (
+                <label key={option.value} className="radio-option">
+                  {/* Every radio in the group shares `name="preferredContactMethod"`.
+                      `checked` is derived from state — the ONE whose `value`
+                      matches state is the selected one. That's what makes
+                      this a "controlled" radio group. */}
+                  <input
+                    type="radio"
+                    name="preferredContactMethod"
+                    value={option.value}
+                    checked={formValues.preferredContactMethod === option.value}
+                    onChange={handleFieldChange}
+                  />
+                  <span>{option.label}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
           <label className="form-field">
             <span>Message</span>
             {/* <textarea> is a controlled input just like <input>. Note that
@@ -222,6 +353,22 @@ export default function Contact() {
               onChange={handleFieldChange}
               required
             />
+          </label>
+
+          {/* Single checkbox.
+              For a controlled checkbox, use `checked={boolean}` (NOT `value`),
+              and read the new state from `event.target.checked` (which our
+              shared handler already does).
+              The label sits AFTER the input on purpose — the usual reading
+              order for a checkbox is "☑ Do the thing", not "Do the thing ☑". */}
+          <label className="checkbox-option">
+            <input
+              type="checkbox"
+              name="subscribeToUpdates"
+              checked={formValues.subscribeToUpdates}
+              onChange={handleFieldChange}
+            />
+            <span>Subscribe to occasional project updates (no spam).</span>
           </label>
 
           {/* type="submit" makes clicking or pressing Enter trigger onSubmit
