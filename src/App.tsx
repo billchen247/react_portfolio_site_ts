@@ -29,6 +29,7 @@ import Contact from './pages/Contact';
 import Architecture from './pages/Architecture';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
+import NotFound from './pages/NotFound';
 
 // A React "function component" is any function whose name starts with a
 // capital letter and returns JSX. `export default` makes it the primary
@@ -66,10 +67,8 @@ export default function App() {
           {/* Blog articles */}
           <Route path="/blog/:slug" element={<BlogPost />} />
 
-          {/* The wildcard "*" is the catch-all. Any URL that didn't match
-              a route above (e.g. /foo/bar) falls through to Home so the
-              site stays usable instead of showing a blank page. */}
-          <Route path="*" element={<Home />} />
+            {/* The wildcard is the catch-all for unknown URLs. */}
+            <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 

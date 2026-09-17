@@ -20,10 +20,12 @@ import Logo from '../components/Logo';
 type ContactRedirectState = {
   justSubmitted?: boolean;
   firstName?: string;
+  lastName?: string;
 };
 
 type Confirmation = {
   firstName: string;
+  lastName: string;
 };
 
 export default function Home() {
@@ -37,7 +39,10 @@ export default function Home() {
   useEffect(() => {
     const state = location.state as ContactRedirectState | null;
     if (state?.justSubmitted) {
-      setConfirmation({ firstName: state.firstName || '' });
+      setConfirmation({
+        firstName: state.firstName || '',
+        lastName: state.lastName || "",
+       });
       navigate('/', { replace: true, state: null });
     }
   }, [location.state, navigate]);
@@ -54,7 +59,8 @@ export default function Home() {
           className="flex items-center justify-between gap-4 px-4 py-3 mb-6 rounded-md bg-accent/15 border border-accent text-text"
         >
           <span>
-            Thanks{confirmation.firstName ? `, ${confirmation.firstName}` : ''} — your
+            {/* Ternary inside JSX: include ", firstName" only when we have one. */}
+            Thanks{confirmation.firstName ? `, ${confirmation.firstName}` : ''}{confirmation.lastName ? ` ${confirmation.lastName}` : ''} — your
             message was received. I'll get back to you shortly.
           </span>
           <button
@@ -76,7 +82,7 @@ export default function Home() {
           <p className="uppercase tracking-[0.14em] text-accent font-semibold text-sm mb-2">
             Welcome
           </p>
-          <h1>Hi, I'm Bill Chen.</h1>
+          <h1>Hi, I'm Bill Chen. This is my portfolio. Demo for COMP229 class.</h1>
           <p className="lead">
             I design and build fast, accessible web experiences that turn ideas into
             products people enjoy using. Take a look around — the tour starts on the

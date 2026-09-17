@@ -7,7 +7,7 @@
 // the three sections comes from Tailwind's `gap-*` utility on the wrapper.
 // -----------------------------------------------------------------------------
 import AboutHero from '../components/about/AboutHero';
-import SkillsList, { DEFAULT_SKILLS } from '../components/about/SkillsList';
+import SkillsList, { DEFAULT_SKILLS, COOL_SKILLS } from '../components/about/SkillsList';
 import TechStack from '../components/about/TechStack';
 
 export default function About() {
@@ -21,6 +21,9 @@ export default function About() {
       <AboutHero />
 
       <SkillsList title="Skills I bring to a team" skills={DEFAULT_SKILLS} />
+      <SkillsList
+        title="Skills I want to learn"
+        skills={COOL_SKILLS} />
 
       <TechStack title="Tech I reach for" />
     </section>

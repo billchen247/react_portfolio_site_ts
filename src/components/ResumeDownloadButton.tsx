@@ -35,9 +35,8 @@ export default function ResumeDownloadButton({
   fileName = 'resume.pdf',
   className
 }: ResumeDownloadButtonProps) {
-  // `import.meta.env.BASE_URL` always ends with a slash, so simple
-  // concatenation produces "/resume.pdf" on Netlify and
-  // "/react_portfolio_site_ts/resume.pdf" on GitHub Pages.
+  // `import.meta.env.BASE_URL` already ends with a slash, so do not add
+  // another one before the file name.
   const href = `${import.meta.env.BASE_URL}${fileName}`;
 
   // Compose the class string. A caller may pass `className="align-self-end"`

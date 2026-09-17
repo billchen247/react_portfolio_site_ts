@@ -179,11 +179,14 @@ export default function Contact() {
     console.log('Contact form submitted:', formValues);
 
     const submittedFirstName = formValues.firstName;
+    const submittedLastName = formValues.lastName;
     setFormValues(EMPTY_FORM);
     setErrors({});
     setTouched({});
 
-    navigate('/', { state: { justSubmitted: true, firstName: submittedFirstName } });
+    // navigate() with `state` passes data to the next page. Home.tsx reads
+    // it via useLocation().state and renders the "Thanks, ___" banner.
+    navigate('/', { state: { justSubmitted: true, firstName: submittedFirstName, lastName: submittedLastName } });
   };
 
   const errorFor = (name: FieldName): string | undefined =>
