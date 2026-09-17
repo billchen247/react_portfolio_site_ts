@@ -1,0 +1,47 @@
+.skills-page {
+  --skills-accent: #6ee7b7;
+  --skills-accent-soft: rgba(110, 231, 183, 0.12);
+}
+
+.skills-page-heading {
+  padding: 1.5rem;
+  border-left: 4px solid var(--skills-accent);
+  background: linear-gradient(135deg, var(--skills-accent-soft), transparent 70%);
+}
+
+.skills-page-heading .section-title {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.skills-page-heading .lead {
+  margin-bottom: 0;
+}
+
+.skills-page-lists {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.skills-page-lists .skills-list {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.skills-page-lists .skills-list-title {
+  color: var(--skills-accent);
+}
+
+@media (max-width: 767px) {
+  .skills-page-heading {
+    padding: 1rem;
+  }
+
+  .skills-page-lists {
+    grid-template-columns: 1fr;
+  }
+}
