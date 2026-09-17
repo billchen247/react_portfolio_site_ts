@@ -131,6 +131,35 @@
   outline-offset: 2px;
 }
 
+/* Inline validation error message shown below an invalid field. */
+.form-error {
+  margin: 0.15rem 0 0;
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Neutral hint text (character counter, help text, …). */
+.form-hint {
+  margin: 0.15rem 0 0;
+  align-self: end;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+.form-hint.over-limit {
+  color: #ff6b6b;
+}
+
+/* Red-outline treatment for fields the user has already blurred with an
+   error. Uses aria-invalid so it stays in sync with the accessible state. */
+.form-field input[aria-invalid='true'],
+.form-field textarea[aria-invalid='true'],
+.form-field select[aria-invalid='true'] {
+  border-color: #ff6b6b;
+}
+
 @media (max-width: 800px) {
   .contact-grid {
     grid-template-columns: 1fr;
