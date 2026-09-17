@@ -13,18 +13,13 @@
 // -----------------------------------------------------------------------------
 import { Link } from 'react-router-dom';
 import { BLOG_POSTS } from '../data/blogPosts';
-import './Blog.css';
 
-// Copy the imported array before sorting — `Array.prototype.sort` mutates in
-// place, and we don't want to change the module-level BLOG_POSTS list for
-// other importers. Sorting newest-first via ISO-date string compare works
-// because ISO-8601 dates sort lexicographically the same as chronologically.
+// Copy before sorting — Array.prototype.sort mutates in place. ISO-8601 dates
+// sort lexicographically the same as chronologically, so localeCompare is safe.
 const POSTS_NEWEST_FIRST = [...BLOG_POSTS].sort((a, b) =>
   b.publishedOn.localeCompare(a.publishedOn)
 );
 
-// A single formatter reused for every card — cheaper than constructing one
-// per render. `undefined` locale means "use the browser's".
 const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
   year: 'numeric',
   month: 'long',
@@ -33,25 +28,27 @@ const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
 
 export default function Blog() {
   return (
-    <section className="blog">
+    <section>
       <h1 className="section-title">Writing</h1>
       <p className="lead">
         Occasional notes on frontend, TypeScript, and pragmatic engineering.
       </p>
 
-      <ol className="blog-list">
+      <ol className="list-none p-0 mt-6 grid gap-4">
         {POSTS_NEWEST_FIRST.map((post) => (
-          <li key={post.slug} className="card blog-card">
-            {/* The whole card is not a link (that would break the tag
-                buttons and nested anchors); the title is the primary link
-                target and the "Read →" affordance mirrors it. */}
-            <h2 className="blog-card-title">
-              <Link to={`/blog/${post.slug}`}>{post.title}</Link>
+          <li key={post.slug} className="card grid gap-2">
+            {/* The whole card is not a link (that would break nested tags);
+                the title is the primary link and "Read →" mirrors it. */}
+            <h2 className="m-0 text-[1.35rem]">
+              <Link
+                to={`/blog/${post.slug}`}
+                className="text-text no-underline hover:text-accent hover:underline"
+              >
+                {post.title}
+              </Link>
             </h2>
 
-            <p className="blog-card-meta">
-              {/* <time> is the semantic HTML for dates. `dateTime` is the
-                  machine-readable value; the text content is what users see. */}
+            <p className="m-0 text-muted text-sm">
               <time dateTime={post.publishedOn}>
                 {DATE_FORMATTER.format(new Date(post.publishedOn))}
               </time>
@@ -59,9 +56,9 @@ export default function Blog() {
               <span>{post.readingTimeMinutes} min read</span>
             </p>
 
-            <p className="blog-card-excerpt">{post.excerpt}</p>
+            <p className="m-0 text-text leading-relaxed">{post.excerpt}</p>
 
-            <ul className="blog-card-tags">
+            <ul className="list-none p-0 mt-0.5 flex flex-wrap gap-1.5">
               {post.tags.map((tag) => (
                 <li key={tag} className="tag">
                   {tag}
@@ -69,7 +66,10 @@ export default function Blog() {
               ))}
             </ul>
 
-            <Link to={`/blog/${post.slug}`} className="blog-card-more">
+            <Link
+              to={`/blog/${post.slug}`}
+              className="self-start mt-1 text-accent font-semibold no-underline hover:underline"
+            >
               Read →
             </Link>
           </li>

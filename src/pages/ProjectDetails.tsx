@@ -9,23 +9,18 @@
 // A subtle TypeScript note: the imported `Project` type carries `liveUrl`
 // and `repoUrl` as optional fields (marked with `?`). At runtime that means
 // they can be `undefined`, so the JSX guards each one with `&&` before
-// rendering the corresponding link. Without those checks, the type checker
-// would complain about passing `undefined` where a `string` href is
-// required.
+// rendering the corresponding link.
 // -----------------------------------------------------------------------------
 import { Link, useParams } from 'react-router-dom';
 import { PROJECTS } from '../data/projects';
-import './ProjectDetails.css';
 
 export default function ProjectDetails() {
-  // `id` is `string | undefined` — the segment might be missing from the URL.
   const { id } = useParams<{ id: string }>();
-
   const project = PROJECTS.find((entry) => entry.id === id);
 
   if (!project) {
     return (
-      <section className="project-details">
+      <section className="max-w-3xl">
         <h1 className="section-title">Project not found</h1>
         <p className="lead">
           The project you tried to open doesn't exist (or was renamed).
@@ -40,32 +35,41 @@ export default function ProjectDetails() {
   }
 
   return (
-    <article className="project-details">
-      <p className="project-details-back">
-        <Link to="/projects">← Back to projects</Link>
+    <article className="max-w-3xl">
+      <p className="mb-4 text-sm">
+        <Link
+          to="/projects"
+          className="text-muted no-underline hover:text-accent hover:underline"
+        >
+          ← Back to projects
+        </Link>
       </p>
 
-      <header className="project-details-header">
-        <h1 className="project-details-title">{project.title}</h1>
-        <p className="project-details-role">{project.role}</p>
-        <p className="project-details-timeline">{project.timeline}</p>
+      <header className="grid gap-1 mb-5">
+        <h1 className="m-0 text-3xl leading-tight">{project.title}</h1>
+        <p className="m-0 text-accent font-semibold">{project.role}</p>
+        <p className="m-0 text-muted text-sm">{project.timeline}</p>
       </header>
 
       <img
-        className="project-details-image"
         src={project.image}
         alt={project.imageAlt}
+        className="w-full h-64 object-cover rounded-md bg-surface-2 mb-5"
       />
 
-      <div className="project-details-body">
+      <div className="grid gap-4 text-text leading-7 mb-6">
         {project.description.map((paragraph, index) => (
-          <p key={index}>{paragraph}</p>
+          <p key={index} className="m-0">
+            {paragraph}
+          </p>
         ))}
       </div>
 
-      <section className="project-details-meta">
-        <h2 className="project-details-meta-heading">Tech stack</h2>
-        <ul className="project-details-tags">
+      <section className="mb-6">
+        <h2 className="m-0 mb-2 text-base text-muted font-semibold uppercase tracking-wider">
+          Tech stack
+        </h2>
+        <ul className="list-none p-0 m-0 flex flex-wrap gap-1.5">
           {project.techStack.map((tech) => (
             <li key={tech} className="tag">
               {tech}
@@ -74,13 +78,8 @@ export default function ProjectDetails() {
         </ul>
       </section>
 
-      {/* Optional links: only render the row if at least one is set, and
-          only render each link if that particular field is defined.
-          The `&&` short-circuit is TypeScript-friendly — inside the truthy
-          branch, `project.liveUrl` narrows from `string | undefined` to
-          `string`, so `href={project.liveUrl}` is safe. */}
       {(project.liveUrl || project.repoUrl) && (
-        <section className="project-details-links">
+        <section className="flex flex-wrap gap-2.5">
           {project.liveUrl && (
             <a
               className="btn"

@@ -1,5 +1,33 @@
-/* Site-wide resets and design tokens. Pages reuse these variables. */
-:root {
+/* -----------------------------------------------------------------------------
+   index.css — the single global stylesheet for the site.
+   Author: Bill Chen
+
+   With Tailwind v4, this file does three jobs:
+     1. Pull in Tailwind itself via `@import "tailwindcss"` — that one line
+        provides the reset, the utility engine, and every base utility.
+     2. Register the site's design tokens in a `@theme` block. Each token
+        auto-generates matching utilities:
+          --color-surface  → bg-surface, text-surface, border-surface, ...
+          --radius-lg      → rounded-lg
+          --shadow-md      → shadow-md
+          --font-sans      → font-sans
+          --container-content → max-w-content
+     3. Define a handful of reusable component classes (`.btn`, `.card`, …)
+        using Tailwind's `@apply`, so the JSX doesn't have to repeat the
+        same eight utility classes on every button.
+
+   Old CSS custom properties like `var(--color-accent)` are gone — Tailwind
+   emits an equivalent utility class instead. When a per-component CSS file
+   used to say `background: var(--color-surface)`, the JSX now writes
+   `className="bg-surface"`.
+   ----------------------------------------------------------------------------- */
+
+@import "tailwindcss";
+
+/* Design tokens. Every `--color-*` / `--radius-*` / `--shadow-*` / `--font-*`
+   / `--container-*` declared here becomes a Tailwind utility automatically.
+   That's the whole "theme" — no separate tailwind.config.ts required. */
+@theme {
   --color-bg: #0f1226;
   --color-surface: #171a35;
   --color-surface-2: #1f2447;
@@ -9,70 +37,112 @@
   --color-accent-strong: #22d3aa;
   --color-danger: #f87171;
   --color-border: rgba(255, 255, 255, 0.08);
+
+  /* Radii — override Tailwind's built-in scale for the ones we use. */
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 20px;
+
+  /* One shared shadow. Utility class: `shadow-md`. */
   --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.25);
-  --content-max: 1120px;
+
+  /* System font stack — keeps type crisp across OSes with no download. */
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+
+  /* Custom container max-width. Utility class: `max-w-content`. */
+  --container-content: 1120px;
 }
 
-* {
-  box-sizing: border-box;
+/* Base layer — global element styling. Tailwind ships an opinionated reset;
+   this @layer base adds the site's own defaults on top so headings, links,
+   and body still look like the site instead of a bare Tailwind page. */
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    background:
+      radial-gradient(1200px 800px at 10% -10%, #22265a 0%, transparent 55%),
+      radial-gradient(1000px 700px at 110% 10%, #163a44 0%, transparent 55%),
+      var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  img {
+    max-width: 100%;
+    display: block;
+  }
+
+  h1,
+  h2,
+  h3 {
+    line-height: 1.15;
+    margin: 0 0 0.6em;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+  }
+
+  p {
+    margin: 0 0 1em;
+    color: var(--color-muted);
+  }
 }
 
-html,
-body,
-#root {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
+/* Component layer — hand-named classes for patterns that repeat all over
+   the site. Each is just a bundle of utilities via `@apply`, so we get
+   Tailwind's design consistency without repeating the same 8-class string
+   on every button. Callers just write `className="btn"`. */
+@layer components {
+  .btn {
+    @apply inline-block rounded-md px-5 py-3 font-semibold no-underline cursor-pointer border-0 transition;
+    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-strong));
+    color: #05221a;
+  }
 
-body {
-  background: radial-gradient(1200px 800px at 10% -10%, #22265a 0%, transparent 55%),
-    radial-gradient(1000px 700px at 110% 10%, #163a44 0%, transparent 55%),
-    var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-sans);
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-}
+  .btn:hover {
+    @apply -translate-y-px shadow-md no-underline;
+  }
 
-a {
-  color: var(--color-accent);
-  text-decoration: none;
-}
+  .btn-secondary {
+    @apply text-accent border border-accent bg-transparent;
+    background: transparent;
+  }
 
-a:hover {
-  text-decoration: underline;
-}
+  .card {
+    @apply bg-surface border border-border rounded-lg p-5 shadow-md;
+  }
 
-img {
-  max-width: 100%;
-  display: block;
-}
+  .section-title {
+    @apply text-text mt-0;
+  }
 
-h1,
-h2,
-h3 {
-  line-height: 1.15;
-  margin: 0 0 0.6em;
-}
+  .lead {
+    @apply text-muted text-[1.05rem] max-w-[68ch];
+  }
 
-h1 {
-  font-size: clamp(2rem, 4vw, 3rem);
-}
-
-h2 {
-  font-size: clamp(1.5rem, 2.6vw, 2rem);
-}
-
-p {
-  margin: 0 0 1em;
-  color: var(--color-muted);
-}
-
-button {
-  font-family: inherit;
+  /* Pill-shaped tag used in blog cards, tech-stack lists, project details. */
+  .tag {
+    @apply inline-block px-2 py-0.5 rounded-full bg-surface-2 border border-border text-muted text-xs tracking-wide;
+  }
 }

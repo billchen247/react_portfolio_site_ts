@@ -30,23 +30,25 @@ import Architecture from './pages/Architecture';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 
-// Importing a CSS file for its side-effect: Vite bundles it and injects it
-// into the page. There's no variable to import — just the URL.
-import './styles/App.css';
-
 // A React "function component" is any function whose name starts with a
 // capital letter and returns JSX. `export default` makes it the primary
 // export so other files can do `import App from './App'`.
+//
+// Layout is expressed inline as Tailwind utility classes. `min-h-full
+// flex flex-col` on the shell + `flex-1` on <main> gives us a footer
+// that sticks to the bottom when the page is short.
 export default function App() {
   return (
     // JSX must return a single parent element. We use a <div> here, but
     // <> </> (a "fragment") also works when you don't want an extra wrapper.
-    <div className="app-shell">
+    <div className="min-h-full flex flex-col">
       <Navbar />
 
       {/* <main> is the semantic HTML tag for the page's primary content.
-          Screen readers use it to skip past the nav straight to the content. */}
-      <main className="page">
+          Screen readers use it to skip past the nav straight to the content.
+          `max-w-content` reads from --container-content in the @theme block
+          (1120px) — that's how the token-per-utility mapping works. */}
+      <main className="flex-1 w-full max-w-content mx-auto px-5 pt-10 pb-16">
         <Routes>
           {/* Each <Route> is "if URL is X, render this component."
               Order does not matter — react-router picks the best match. */}

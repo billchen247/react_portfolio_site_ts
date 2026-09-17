@@ -1,39 +1,28 @@
 // -----------------------------------------------------------------------------
 // AboutHero.tsx — the headshot + intro block at the top of /about.
 // Author: Bill Chen
-//
-// Concepts introduced here:
-//   • Extracting a page section into its own component. The About page used
-//     to hold this JSX inline; pulling it out makes About.tsx a short
-//     "layout" file that composes children, and makes this block reusable
-//     (or replaceable) on its own.
-//   • Static component with no props. Not every component needs props — if
-//     the content is fixed for the page, a bare function component is fine.
-//     When we later want to pass in name/tagline/photo, we would add a
-//     typed props parameter (see SkillsList.tsx / TechStack.tsx for that).
 // -----------------------------------------------------------------------------
 import headshotImage from '../../assets/headshot.svg';
 import ResumeDownloadButton from '../ResumeDownloadButton';
-import './AboutHero.css';
 
 export default function AboutHero() {
   return (
-    <div className="about-hero">
-      {/* alt text is required for accessibility — describe what the image
-          shows so screen-reader users get the same information. */}
+    // Two columns above md (fixed 280px headshot + fluid text); single column
+    // below md, with the headshot cap-widthed so it doesn't fill the screen.
+    <div className="grid gap-8 items-start grid-cols-1 md:grid-cols-[280px_1fr]">
       <img
-        className="about-hero-headshot"
         src={headshotImage}
         alt="Portrait of Bill Chen"
         width={280}
         height={280}
+        className="w-full max-w-[280px] h-auto md:w-[280px] md:h-[280px] object-cover rounded-lg bg-surface-2 border border-border shadow-md"
       />
 
-      <div className="about-hero-body">
-        <h2 className="about-hero-name">Bill Chen</h2>
-        <p className="about-hero-tagline">Software developer · Web + mobile</p>
+      <div className="grid gap-3">
+        <h2 className="mb-0">Bill Chen</h2>
+        <p className="text-accent font-medium m-0">Software developer · Web + mobile</p>
 
-        <p>
+        <p className="m-0 leading-relaxed">
           I'm a software developer who enjoys turning tricky problems into simple,
           polished user experiences. Over the past few years I've worked across the
           stack — building React front ends, Node services, and mobile apps — and
@@ -41,16 +30,17 @@ export default function AboutHero() {
           small.
         </p>
 
-        <p>
+        <p className="m-0 leading-relaxed">
           Outside of work I hike, read broadly, and volunteer teaching intro
           programming at the local library. I care about writing code that is kind
           to the next person who reads it.
         </p>
 
-        {/* The résumé PDF lives under /public. The button component handles
-            the BASE_URL prefix, target/rel/download attributes, and the
-            default label — a single element on this page. */}
-        <ResumeDownloadButton />
+        {/* `justify-self-start` on the button wrapper keeps it from
+            stretching to fill the grid cell. */}
+        <div className="justify-self-start mt-2">
+          <ResumeDownloadButton />
+        </div>
       </div>
     </div>
   );

@@ -11,9 +11,7 @@
 //     meaningful order (most recent first). Assistive tech announces it as a
 //     numbered list.
 // -----------------------------------------------------------------------------
-import './Education.css';
 
-// Shape of one qualification/certification entry in the timeline.
 type Qualification = {
   id: string;
   degree: string;
@@ -23,7 +21,6 @@ type Qualification = {
   detail: string;
 };
 
-// Chronological list, most recent first. Each item renders as a timeline row.
 const QUALIFICATIONS: Qualification[] = [
   {
     id: 'msc',
@@ -39,7 +36,6 @@ const QUALIFICATIONS: Qualification[] = [
     institution: 'University of Waterloo',
     startYear: 2016,
     endYear: 2020,
-    // A leading backslash escapes the apostrophe so it doesn't end the string.
     detail: 'Dean\'s honour list. Capstone: real-time collaborative code editor.'
   },
   {
@@ -54,28 +50,33 @@ const QUALIFICATIONS: Qualification[] = [
 
 export default function Education() {
   return (
-    <section className="education">
+    <section>
       <h1 className="section-title">Education</h1>
       <p className="lead">
         Formal qualifications and certifications, most recent first.
       </p>
 
-      <ol className="timeline">
+      {/* `list-none` removes the default numbering (we render the year
+          ourselves), and `grid gap-4` stacks the entries with even spacing. */}
+      <ol className="list-none p-0 mt-6 grid gap-4">
         {QUALIFICATIONS.map((item) => {
-          // Because the callback has {} braces, we must `return` explicitly.
-          // Show a single year for one-year events, otherwise show a range.
           const yearLabel =
             item.startYear === item.endYear
               ? `${item.startYear}`
               : `${item.startYear} – ${item.endYear}`;
 
           return (
-            <li key={item.id} className="timeline-item card">
-              <div className="timeline-year">{yearLabel}</div>
-              <div className="timeline-body">
-                <h3 className="timeline-degree">{item.degree}</h3>
-                <p className="timeline-institution">{item.institution}</p>
-                <p className="timeline-detail">{item.detail}</p>
+            // Two-column layout above sm; single column below. `sm:` is
+            // Tailwind's "small breakpoint and up" prefix.
+            <li
+              key={item.id}
+              className="card grid gap-5 items-start grid-cols-1 sm:grid-cols-[140px_1fr]"
+            >
+              <div className="font-bold text-accent text-[1.05rem]">{yearLabel}</div>
+              <div>
+                <h3 className="mb-1">{item.degree}</h3>
+                <p className="text-text mb-1">{item.institution}</p>
+                <p className="mb-0">{item.detail}</p>
               </div>
             </li>
           );

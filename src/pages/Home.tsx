@@ -16,43 +16,25 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
-import './Home.css';
 
-// Shape of the router state sent by the Contact form after submission.
 type ContactRedirectState = {
   justSubmitted?: boolean;
   firstName?: string;
 };
 
-// Shape of the local "message sent" banner state we keep on Home.
 type Confirmation = {
   firstName: string;
 };
 
 export default function Home() {
-  // Router hooks. `location` re-runs the component when the URL changes;
-  // `navigate` is the function-form equivalent of clicking a <Link>.
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Local UI state for the "message sent" banner. We keep our OWN copy so the
-  // banner survives even after we wipe the router state — otherwise pressing
-  // browser Refresh on Home would re-show the banner from stale history.
-  //
-  // The explicit `<Confirmation | null>` generic is REQUIRED here: with an
-  // initial value of `null`, TypeScript would otherwise infer the state's
-  // type as just `null`, and later calls to `setConfirmation({ firstName })`
-  // would fail to compile.
+  // Explicit `<Confirmation | null>` generic is required: with a null
+  // initial value, TypeScript would otherwise infer state as `null` only.
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
-  // useEffect(fn, [deps]) → run `fn` after render whenever any dep changes.
-  // Here: when we arrive at Home from the Contact form, `location.state`
-  // includes `justSubmitted: true`. We copy the interesting bit into our own
-  // state, then call navigate(..., { replace: true }) to clear the router
-  // state so a refresh won't trigger this again.
   useEffect(() => {
-    // `location.state` is typed as `unknown` by react-router, so we narrow
-    // it to the expected shape before reading fields.
     const state = location.state as ContactRedirectState | null;
     if (state?.justSubmitted) {
       setConfirmation({ firstName: state.firstName || '' });
@@ -61,32 +43,39 @@ export default function Home() {
   }, [location.state, navigate]);
 
   return (
-    <section className="home">
-      {/* Show the banner ONLY when `confirmation` is truthy. The `&&`
-          short-circuits: if `confirmation` is null, React renders nothing. */}
+    <section>
       {confirmation && (
-        <div className="confirmation-banner" role="status" aria-live="polite">
+        // Confirmation banner — an accent-tinted panel with a dismiss button.
+        // `role="status" aria-live="polite"` announces the text to screen
+        // readers without stealing focus.
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex items-center justify-between gap-4 px-4 py-3 mb-6 rounded-md bg-accent/15 border border-accent text-text"
+        >
           <span>
-            {/* Ternary inside JSX: include ", firstName" only when we have one. */}
             Thanks{confirmation.firstName ? `, ${confirmation.firstName}` : ''} — your
             message was received. I'll get back to you shortly.
           </span>
           <button
             type="button"
-            className="confirmation-close"
             aria-label="Dismiss confirmation"
-            // Inline arrow function is fine for one-off handlers. For hot
-            // paths you'd extract it to avoid re-creating on every render.
             onClick={() => setConfirmation(null)}
+            className="bg-transparent text-text border-0 text-2xl leading-none cursor-pointer px-1 hover:text-accent"
           >
             ×
           </button>
         </div>
       )}
 
-      <div className="home-hero">
-        <div className="home-hero-copy">
-          <p className="eyebrow">Welcome</p>
+      {/* Hero grid. `md:grid-cols-[1.4fr_1fr]` uses an arbitrary value —
+          Tailwind lets you drop any CSS value into brackets when the
+          built-in scale doesn't fit. */}
+      <div className="grid gap-8 mb-10 items-center grid-cols-1 md:grid-cols-[1.4fr_1fr]">
+        <div>
+          <p className="uppercase tracking-[0.14em] text-accent font-semibold text-sm mb-2">
+            Welcome
+          </p>
           <h1>Hi, I'm Bill Chen.</h1>
           <p className="lead">
             I design and build fast, accessible web experiences that turn ideas into
@@ -94,25 +83,30 @@ export default function Home() {
             About page.
           </p>
 
-          <div className="home-cta-row">
-            {/* <Link> is the react-router replacement for <a>. It updates the
-                URL and swaps in the new page WITHOUT a full page reload. */}
+          <div className="flex flex-wrap gap-3 mt-5">
             <Link className="btn" to="/about">
               About Me
             </Link>
-            <Link className="btn secondary" to="/projects">
+            <Link className="btn btn-secondary" to="/projects">
               See Projects
             </Link>
           </div>
         </div>
 
-        {/* aria-hidden="true" tells screen readers to skip decorative content. */}
-        <div className="home-hero-art" aria-hidden="true">
+        {/* aria-hidden="true" tells screen readers to skip decorative content.
+            The radial-gradient background isn't expressible as a single
+            utility, so we use an arbitrary `bg-[...]` value. */}
+        <div
+          aria-hidden="true"
+          className="flex items-center justify-center p-8 rounded-lg bg-[radial-gradient(circle_at_30%_30%,rgba(110,231,183,0.18),transparent_60%)]"
+        >
           <Logo size={220} />
         </div>
       </div>
 
-      <div className="card mission">
+      {/* Mission card — the "card" component class from index.css, plus an
+          accent-colored left border added via utilities. */}
+      <div className="card border-l-4 border-l-accent">
         <h2>Mission Statement</h2>
         <p>
           To craft honest, useful software — clean code paired with clear thinking —

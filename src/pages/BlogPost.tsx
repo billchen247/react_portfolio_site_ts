@@ -15,9 +15,7 @@
 // -----------------------------------------------------------------------------
 import { Link, useParams } from 'react-router-dom';
 import { BLOG_POSTS } from '../data/blogPosts';
-import './BlogPost.css';
 
-// Same formatter approach as Blog.tsx — reuse a single Intl object.
 const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
   year: 'numeric',
   month: 'long',
@@ -25,18 +23,12 @@ const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
 });
 
 export default function BlogPost() {
-  // Type parameter documents the shape react-router promises. The `slug`
-  // field is still typed as `string | undefined` because URLs can be
-  // missing/malformed at runtime.
   const { slug } = useParams<{ slug: string }>();
-
-  // Array.prototype.find returns `undefined` when nothing matches, which
-  // is exactly the "post not found" case we handle below.
   const post = BLOG_POSTS.find((entry) => entry.slug === slug);
 
   if (!post) {
     return (
-      <section className="blog-post">
+      <section className="max-w-2xl">
         <h1 className="section-title">Post not found</h1>
         <p className="lead">
           The article you tried to open doesn't exist (or was renamed).
@@ -51,16 +43,20 @@ export default function BlogPost() {
   }
 
   return (
-    <article className="blog-post">
-      {/* Small breadcrumb-style back link. Users on a detail page almost
-          always want a way back to the list. */}
-      <p className="blog-post-back">
-        <Link to="/blog">← Back to writing</Link>
+    <article className="max-w-2xl">
+      {/* Small breadcrumb-style back link. */}
+      <p className="mb-4 text-sm">
+        <Link
+          to="/blog"
+          className="text-muted no-underline hover:text-accent hover:underline"
+        >
+          ← Back to writing
+        </Link>
       </p>
 
-      <header className="blog-post-header">
-        <h1 className="blog-post-title">{post.title}</h1>
-        <p className="blog-post-meta">
+      <header className="mb-6 grid gap-1.5">
+        <h1 className="m-0 text-3xl leading-tight">{post.title}</h1>
+        <p className="m-0 text-muted text-sm">
           <time dateTime={post.publishedOn}>
             {DATE_FORMATTER.format(new Date(post.publishedOn))}
           </time>
@@ -68,7 +64,7 @@ export default function BlogPost() {
           <span>{post.readingTimeMinutes} min read</span>
         </p>
 
-        <ul className="blog-post-tags">
+        <ul className="list-none p-0 mt-1.5 flex flex-wrap gap-1.5">
           {post.tags.map((tag) => (
             <li key={tag} className="tag">
               {tag}
@@ -77,13 +73,14 @@ export default function BlogPost() {
         </ul>
       </header>
 
-      {/* The body is stored as an array of paragraph strings — safer than
-          dangerouslySetInnerHTML for arbitrary content. If we later need
-          rich formatting, we can either switch to a Markdown renderer or
-          keep this shape and add a small "inline element" schema. */}
-      <div className="blog-post-body">
+      {/* Paragraphs stored as an array of strings — safer than
+          dangerouslySetInnerHTML. `leading-7` = tall line-height for
+          long-form reading. */}
+      <div className="grid gap-4 text-text leading-7">
         {post.paragraphs.map((paragraph, index) => (
-          <p key={index}>{paragraph}</p>
+          <p key={index} className="m-0">
+            {paragraph}
+          </p>
         ))}
       </div>
     </article>

@@ -9,9 +9,7 @@
 import serviceProgrammingImage from '../assets/service-programming.svg';
 import serviceWebImage from '../assets/service-web.svg';
 import serviceMobileImage from '../assets/service-mobile.svg';
-import './Services.css';
 
-// Shape of one service card.
 type Service = {
   id: string;
   title: string;
@@ -20,7 +18,6 @@ type Service = {
   description: string;
 };
 
-// Add a service by adding a new object with an imported image and short description.
 const SERVICES: Service[] = [
   {
     id: 'programming',
@@ -50,22 +47,25 @@ const SERVICES: Service[] = [
 
 export default function Services() {
   return (
-    <section className="services">
+    <section>
       <h1 className="section-title">Services</h1>
       <p className="lead">Areas I take on for freelance and contract work.</p>
 
-      <div className="grid grid-3 services-grid">
-        {/* Same list-render pattern as Projects: `SERVICES.map(...)` returns
-            one <article> per service, keyed by a stable `id`. */}
+      {/* One-column stack below md, three columns above. `md:grid-cols-3`
+          is the responsive form of `grid-cols-3`. */}
+      <div className="grid gap-5 mt-6 grid-cols-1 md:grid-cols-3">
         {SERVICES.map((service) => (
-          <article key={service.id} className="card service-card">
+          <article
+            key={service.id}
+            className="card flex flex-col items-center text-center gap-1"
+          >
             <img
-              className="service-image"
+              className="w-24 h-24 my-2"
               src={service.image}
               alt={service.imageAlt}
               loading="lazy"
             />
-            <h3 className="service-title">{service.title}</h3>
+            <h3 className="mb-1">{service.title}</h3>
             <p>{service.description}</p>
           </article>
         ))}

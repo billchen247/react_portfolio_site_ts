@@ -19,40 +19,47 @@
 // -----------------------------------------------------------------------------
 import { Link } from 'react-router-dom';
 import { PROJECTS } from '../data/projects';
-import './Projects.css';
 
 export default function Projects() {
   return (
-    <section className="projects">
+    <section>
       <h1 className="section-title">Projects</h1>
       <p className="lead">
         A few things I've shipped recently. Each card describes my role and the
         outcome the work produced — click a title for the full write-up.
       </p>
 
-      <div className="grid grid-3 projects-grid">
-        {/* `.map()` returns a new array — here, an array of <article> JSX
-            elements. React knows how to render an array of elements inline. */}
+      <div className="grid gap-5 mt-6 grid-cols-1 md:grid-cols-3">
         {PROJECTS.map((project) => (
-          <article key={project.id} className="card project-card">
+          <article
+            key={project.id}
+            className="card flex flex-col gap-2"
+          >
             <img
-              className="project-image"
               src={project.image}
               alt={project.imageAlt}
               loading="lazy"
+              className="w-full h-40 object-cover rounded-md bg-surface-2"
             />
             {/* The title acts as the primary link into the detail page.
                 Wrapping just the heading (rather than the whole card) keeps
                 the accessible link text focused on the project title. */}
-            <h3 className="project-title">
-              <Link to={`/projects/${project.id}`}>{project.title}</Link>
+            <h3 className="mt-2 mb-0 text-text">
+              <Link
+                to={`/projects/${project.id}`}
+                className="text-inherit no-underline hover:text-accent hover:underline"
+              >
+                {project.title}
+              </Link>
             </h3>
-            <p className="project-role">{project.role}</p>
-            <p className="project-outcome">{project.outcome}</p>
+            <p className="text-accent font-semibold text-[0.95rem] m-0">
+              {project.role}
+            </p>
+            <p className="mt-1 mb-0">{project.outcome}</p>
             <Link
               to={`/projects/${project.id}`}
-              className="project-card-more"
               aria-label={`Read more about ${project.title}`}
+              className="self-start mt-1 text-accent font-semibold no-underline hover:underline"
             >
               Details →
             </Link>
