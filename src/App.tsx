@@ -22,9 +22,13 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import About from './pages/About';
 import Projects from './pages/Projects';
+import ProjectDetails from './pages/ProjectDetails';
 import Education from './pages/Education';
 import Services from './pages/Services';
 import Contact from './pages/Contact';
+import Architecture from './pages/Architecture';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 
 // Importing a CSS file for its side-effect: Vite bundles it and injects it
 // into the page. There's no variable to import — just the URL.
@@ -52,6 +56,13 @@ export default function App() {
           <Route path="/education" element={<Education />} />
           <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/architecture" element={<Architecture />} />
+          <Route path="/blog" element={<Blog />} />
+          {/* Project details */}
+          <Route path="/projects/:id" element={<ProjectDetails />} />
+
+          {/* Blog articles */}
+          <Route path="/blog/:slug" element={<BlogPost />} />
 
           {/* The wildcard "*" is the catch-all. Any URL that didn't match
               a route above (e.g. /foo/bar) falls through to Home so the

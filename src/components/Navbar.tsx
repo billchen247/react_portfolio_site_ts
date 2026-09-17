@@ -36,6 +36,8 @@ const NAV_LINKS: NavLinkItem[] = [
   { to: '/projects', label: 'Projects' },
   { to: '/education', label: 'Education' },
   { to: '/services', label: 'Services' },
+  { to: '/blog', label: 'Blog' },
+  { to: '/architecture', label: 'Architecture' },
   { to: '/contact', label: 'Contact Me' }
 ];
 

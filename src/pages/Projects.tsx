@@ -12,55 +12,14 @@
 //     reordered or filtered.
 //   • `loading="lazy"` on <img>: a browser hint to defer loading offscreen
 //     images. Cheap performance win with no code cost.
+//   • Sharing typed data between pages: PROJECTS lives in src/data/projects.ts
+//     because both this listing page AND the /projects/:id detail page read
+//     from the same source. Moving the array into a dedicated data module
+//     also keeps this component small and easy to read.
 // -----------------------------------------------------------------------------
-import projectDashboardImage from '../assets/project-dashboard.svg';
-import projectMobileImage from '../assets/project-mobile.svg';
-import projectApiImage from '../assets/project-api.svg';
+import { Link } from 'react-router-dom';
+import { PROJECTS } from '../data/projects';
 import './Projects.css';
-
-// Shape of one project card. Declaring the type once means every entry in
-// the PROJECTS array must supply the same fields — a nice compile-time check.
-type Project = {
-  id: string;
-  title: string;
-  image: string;
-  imageAlt: string;
-  role: string;
-  outcome: string;
-};
-
-// Each entry drives one project card. Add a new object to add another project.
-// UPPER_SNAKE_CASE is a common convention for module-level constants that
-// never change after being defined.
-const PROJECTS: Project[] = [
-  {
-    id: 'insight-dashboard',
-    title: 'Insight Analytics Dashboard',
-    image: projectDashboardImage,
-    imageAlt: 'Illustration of an analytics dashboard with charts',
-    role: 'Lead front-end developer',
-    outcome:
-      'Delivered a real-time dashboard adopted by 40+ internal teams; cut report generation time from hours to under a minute.'
-  },
-  {
-    id: 'trailtracker',
-    title: 'TrailTracker Mobile App',
-    image: projectMobileImage,
-    imageAlt: 'Illustration of a phone showing a trail map',
-    role: 'React Native developer',
-    outcome:
-      'Shipped an offline-first hiking companion to iOS and Android with 4.8-star ratings and 15k+ downloads in the first quarter.'
-  },
-  {
-    id: 'orderflow-api',
-    title: 'OrderFlow API Platform',
-    image: projectApiImage,
-    imageAlt: 'Illustration of API endpoints and data flow',
-    role: 'Backend engineer',
-    outcome:
-      'Designed a Node/Express service handling 2M+ orders/day; reduced p95 latency by 62% through query and cache redesign.'
-  }
-];
 
 export default function Projects() {
   return (
@@ -68,7 +27,7 @@ export default function Projects() {
       <h1 className="section-title">Projects</h1>
       <p className="lead">
         A few things I've shipped recently. Each card describes my role and the
-        outcome the work produced.
+        outcome the work produced — click a title for the full write-up.
       </p>
 
       <div className="grid grid-3 projects-grid">
@@ -82,9 +41,21 @@ export default function Projects() {
               alt={project.imageAlt}
               loading="lazy"
             />
-            <h3 className="project-title">{project.title}</h3>
+            {/* The title acts as the primary link into the detail page.
+                Wrapping just the heading (rather than the whole card) keeps
+                the accessible link text focused on the project title. */}
+            <h3 className="project-title">
+              <Link to={`/projects/${project.id}`}>{project.title}</Link>
+            </h3>
             <p className="project-role">{project.role}</p>
             <p className="project-outcome">{project.outcome}</p>
+            <Link
+              to={`/projects/${project.id}`}
+              className="project-card-more"
+              aria-label={`Read more about ${project.title}`}
+            >
+              Details →
+            </Link>
           </article>
         ))}
       </div>
