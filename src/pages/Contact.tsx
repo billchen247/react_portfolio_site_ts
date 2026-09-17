@@ -16,6 +16,14 @@
 //     would reload the page). We handle the submit ourselves.
 //   • Cross-page communication via router state: navigate('/', { state: X })
 //     hands `X` to the destination page, which reads it with useLocation().
+//   • TypeScript event types: React ships generic event types keyed by the
+//     element that fired them. `ChangeEvent<HTMLInputElement>` describes an
+//     input's onChange event; `FormEvent<HTMLFormElement>` describes a form's
+//     onSubmit event. Using them gives you autocomplete on `event.target`.
+//   • `import type` — a TypeScript-only form of `import` for values that
+//     exist ONLY in the type system. It gets erased at build time (nothing
+//     ships to the browser), so it's the right choice for pure type imports
+//     like ChangeEvent / FormEvent.
 // -----------------------------------------------------------------------------
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
@@ -63,6 +71,13 @@ export default function Contact() {
     // Object spread: copy all previous keys, then overwrite the one that
     // changed. `[name]` is a "computed property key" — the key is the value
     // of the `name` variable, not the literal string "name".
+    //
+    // `name as keyof ContactFormValues` is a TypeScript "type assertion":
+    // `event.target.name` is typed as a plain `string`, but we know it can
+    // only be one of the field names we defined above. The assertion tells
+    // TS "trust me, it's one of those keys" so the computed-property assignment
+    // type-checks. At runtime this line is just a plain assignment — the
+    // assertion is erased.
     setFormValues((previousValues) => ({
       ...previousValues,
       [name as keyof ContactFormValues]: value

@@ -38,6 +38,11 @@ export default function Home() {
   // Local UI state for the "message sent" banner. We keep our OWN copy so the
   // banner survives even after we wipe the router state — otherwise pressing
   // browser Refresh on Home would re-show the banner from stale history.
+  //
+  // The explicit `<Confirmation | null>` generic is REQUIRED here: with an
+  // initial value of `null`, TypeScript would otherwise infer the state's
+  // type as just `null`, and later calls to `setConfirmation({ firstName })`
+  // would fail to compile.
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
   // useEffect(fn, [deps]) → run `fn` after render whenever any dep changes.

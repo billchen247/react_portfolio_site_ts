@@ -46,6 +46,12 @@ export default function Navbar() {
   //
   // React re-runs this function every render, but useState remembers the
   // last value across renders — that's what makes it "state".
+  //
+  // The `<boolean>` after `useState` is a TypeScript "type argument" — it
+  // pins the state type explicitly. TS could infer `boolean` from `false`
+  // here, so this is written out just for clarity; when the initial value
+  // is `null`/`[]` and TS would infer something too narrow, the annotation
+  // is actually required (see Home.tsx / Contact.tsx for examples).
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   // Small helper we reuse from multiple click handlers below.

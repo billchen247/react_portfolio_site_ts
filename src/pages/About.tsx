@@ -6,9 +6,13 @@
 //   • Importing an image as if it were a module. Vite (the build tool) rewrites
 //     the import to the final asset URL and fingerprints it for cache-busting.
 //     That's why we can plug the imported value straight into <img src={...}>.
+//     TypeScript knows the import resolves to a `string` because of the
+//     ambient types pulled in by `src/vite-env.d.ts` (`/// <reference types="vite/client" />`).
 //   • import.meta.env.BASE_URL — the deploy prefix (e.g. "/" locally,
 //     "/react_portfolio_site_ts/" on GitHub Pages). Prepending it makes links
-//     to files in /public work no matter where the site is hosted.
+//     to files in /public work no matter where the site is hosted. `BASE_URL`
+//     is typed as `string` by `vite/client`, so template-string usage below
+//     type-checks without an assertion.
 // -----------------------------------------------------------------------------
 import headshotImage from '../assets/headshot.svg';
 import './About.css';
