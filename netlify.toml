@@ -1,0 +1,20 @@
+# Netlify build config. The GitHub Actions workflow builds and uploads the
+# `dist/` folder directly, but this file is still useful:
+#   - `redirects` makes react-router deep links (e.g. /about) work after a
+#     browser refresh by falling back to index.html.
+#   - `[build]` fields let you re-enable Netlify's own build later just by
+#     connecting the repo in the Netlify UI.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+# Single-page app fallback: any path that isn't a real file serves index.html
+# so the client-side router can resolve the route.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

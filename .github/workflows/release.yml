@@ -1,0 +1,88 @@
+name: Build and Publish Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. v1.0.0). Must match v<major>.<minor>.<patch>.'
+        required: true
+        type: string
+
+# The action-gh-release action needs write access to the Contents (releases) API.
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          # Fetch full history so auto-generated release notes can diff from
+          # the previous tag rather than just seeing HEAD.
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      # Resolve the release version from either the pushed tag or the manual
+      # dispatch input. Values are read via env: (never interpolated directly
+      # into the shell script) to keep this step injection-safe.
+      - name: Determine release version
+        id: version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            VALUE="$INPUT_VERSION"
+          else
+            VALUE="$REF_NAME"
+          fi
+          if ! printf '%s' "$VALUE" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.-]+)?$'; then
+            echo "Invalid version format: $VALUE" >&2
+            echo "Expected: v<major>.<minor>.<patch> (optional -prerelease)" >&2
+            exit 1
+          fi
+          echo "value=$VALUE" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build production bundle
+        run: npm run build
+
+      # Package the built site into a single zip attached to the Release.
+      - name: Package dist/
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          ARCHIVE="react-portfolio-site-${VERSION}.zip"
+          (cd dist && zip -r "../${ARCHIVE}" .)
+          echo "Created ${ARCHIVE}"
+          ls -lh "${ARCHIVE}"
+
+      # For workflow_dispatch runs the tag does not exist yet — the action
+      # will create it against the current commit. For push-tag runs the tag
+      # already exists and the action just attaches assets to it.
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.version.outputs.value }}
+          name: Release ${{ steps.version.outputs.value }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: react-portfolio-site-${{ steps.version.outputs.value }}.zip

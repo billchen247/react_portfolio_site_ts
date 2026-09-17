@@ -1,0 +1,127 @@
+name: Deploy to GitHub Pages
+
+# Manual-only trigger. Netlify already auto-deploys on every push to main;
+# this workflow lets you publish an on-demand snapshot to
+# https://<user>.github.io/<repo>/ without racing the Netlify pipeline.
+on:
+  workflow_dispatch:
+
+# Permissions required by actions/deploy-pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Serial deploys per environment — GitHub only allows one live Pages deploy
+# at a time; cancel-in-progress: false so a manual re-run finishes cleanly
+# rather than getting killed by a follow-up dispatch.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      # configure-pages exposes the resolved base path (e.g. `/repo-name/`)
+      # via `steps.pages.outputs.base_path`. We feed that into Vite so the
+      # built HTML references assets under the correct sub-path automatically —
+      # no hard-coded repo name here.
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v6
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build production bundle
+        # Vite reads VITE_BASE_PATH from vite.config.js. Using env: (not string
+        # interpolation into run:) keeps the step injection-safe.
+        env:
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    # The URL of the live deployment is echoed back into the workflow summary.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+      # Renders a clickable summary panel at the top of the workflow run page.
+      - name: Write deployment summary
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          {
+            echo "## 🚀 GitHub Pages deployment"
+            echo ""
+            echo "Live at: [${PAGE_URL}](${PAGE_URL})"
+            echo ""
+            echo "Deployed commit: \`${COMMIT_SHA}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Queries the Pages REST API for the resolved site settings (html_url,
+      # cname/custom-domain, https_enforced, status) and prints them as a
+      # table in the run summary. Handles the first-deploy case where the
+      # API returns 404 for a couple of seconds by treating failure as
+      # informational rather than fatal.
+      - name: Fetch Pages settings via API
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          if ! gh api "repos/${REPO}/pages" > /tmp/pages.json 2> /tmp/pages.err; then
+            {
+              echo ""
+              echo "_Pages API not yet queryable — probably the very first deploy._"
+              echo ""
+              echo "\`\`\`"
+              cat /tmp/pages.err
+              echo "\`\`\`"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          HTML_URL=$(jq -r '.html_url // "(unknown)"' /tmp/pages.json)
+          CNAME=$(jq -r '.cname // "(none)"' /tmp/pages.json)
+          HTTPS=$(jq -r '.https_enforced // false' /tmp/pages.json)
+          STATUS=$(jq -r '.status // "(unknown)"' /tmp/pages.json)
+          SOURCE=$(jq -r '.build_type // "(unknown)"' /tmp/pages.json)
+
+          {
+            echo ""
+            echo "### Pages settings"
+            echo ""
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| html_url | ${HTML_URL} |"
+            echo "| custom domain (cname) | ${CNAME} |"
+            echo "| https_enforced | ${HTTPS} |"
+            echo "| status | ${STATUS} |"
+            echo "| build source | ${SOURCE} |"
+          } >> "$GITHUB_STEP_SUMMARY"

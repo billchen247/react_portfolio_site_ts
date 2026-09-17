@@ -1,0 +1,60 @@
+name: Build and Deploy to Netlify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel in-progress runs for the same ref when a new commit arrives.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          # No `cache: npm` because package-lock.json is not committed; the
+          # setup-node cache resolver requires a lockfile and would fail.
+
+      - name: Install dependencies
+        # `npm install` (not `npm ci`) because package-lock.json is intentionally
+        # not committed for this repo.
+        run: npm install
+
+      - name: Build production bundle
+        run: npm run build
+      
+      - name: Test Netlify authentication
+        run: npx netlify-cli sites:list
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      
+      - name: Test Netlify
+        run: npx netlify-cli status
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+      # Deploys `dist/` to Netlify. On pushes to main this becomes the live
+      # production release; on pull requests it publishes a preview URL that
+      # the action posts back as a PR comment.
+      - name: Deploy to Netlify
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --prod --dir=dist
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 3

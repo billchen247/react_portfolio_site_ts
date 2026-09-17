@@ -1,0 +1,78 @@
+/* Site-wide resets and design tokens. Pages reuse these variables. */
+:root {
+  --color-bg: #0f1226;
+  --color-surface: #171a35;
+  --color-surface-2: #1f2447;
+  --color-text: #e9ecff;
+  --color-muted: #a6accf;
+  --color-accent: #6ee7b7;
+  --color-accent-strong: #22d3aa;
+  --color-danger: #f87171;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.25);
+  --content-max: 1120px;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: radial-gradient(1200px 800px at 10% -10%, #22265a 0%, transparent 55%),
+    radial-gradient(1000px 700px at 110% 10%, #163a44 0%, transparent 55%),
+    var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.15;
+  margin: 0 0 0.6em;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+h2 {
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+}
+
+p {
+  margin: 0 0 1em;
+  color: var(--color-muted);
+}
+
+button {
+  font-family: inherit;
+}

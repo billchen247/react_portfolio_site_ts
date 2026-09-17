@@ -1,0 +1,39 @@
+.about-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.about-headshot {
+  width: 280px;
+  height: 280px;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+.about-name {
+  margin-bottom: 0.1em;
+}
+
+.about-tagline {
+  color: var(--color-accent);
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 800px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-headshot {
+    width: 100%;
+    height: auto;
+    max-width: 280px;
+  }
+}

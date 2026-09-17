@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="400" height="240">
+  <rect width="400" height="240" fill="#163a44"/>
+  <!-- Phone frame -->
+  <rect x="150" y="20" width="100" height="200" rx="18" fill="#0f1226" stroke="#22d3aa" stroke-width="2"/>
+  <rect x="160" y="40" width="80" height="150" rx="6" fill="#1f2447"/>
+  <!-- Trail path -->
+  <path d="M170,180 Q190,140 200,120 T230,60" stroke="#6ee7b7" stroke-width="3" fill="none"/>
+  <circle cx="170" cy="180" r="4" fill="#f87171"/>
+  <circle cx="230" cy="60" r="4" fill="#6ee7b7"/>
+  <!-- Home indicator -->
+  <rect x="185" y="205" width="30" height="4" rx="2" fill="#a6accf"/>
+</svg>

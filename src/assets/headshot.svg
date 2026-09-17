@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22265a"/>
+      <stop offset="100%" stop-color="#163a44"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f4d0a8"/>
+      <stop offset="100%" stop-color="#d9ad82"/>
+    </linearGradient>
+  </defs>
+  <rect width="280" height="280" fill="url(#bg)"/>
+  <!-- Shoulders -->
+  <path d="M20,280 C50,210 100,190 140,190 C180,190 230,210 260,280 Z" fill="#22d3aa"/>
+  <!-- Neck -->
+  <rect x="120" y="160" width="40" height="45" rx="12" fill="url(#skin)"/>
+  <!-- Head -->
+  <circle cx="140" cy="120" r="55" fill="url(#skin)"/>
+  <!-- Hair -->
+  <path d="M85,110 C85,70 195,70 195,110 C195,95 175,80 140,80 C105,80 85,95 85,110 Z" fill="#3b2c22"/>
+  <!-- Eyes -->
+  <circle cx="122" cy="122" r="4" fill="#1a1a1a"/>
+  <circle cx="158" cy="122" r="4" fill="#1a1a1a"/>
+  <!-- Smile -->
+  <path d="M122,145 Q140,158 158,145" stroke="#5a3a2a" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>

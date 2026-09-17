@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="400" height="240">
+  <rect width="400" height="240" fill="#22265a"/>
+  <!-- Nodes -->
+  <circle cx="80" cy="120" r="26" fill="#6ee7b7"/>
+  <circle cx="200" cy="60" r="26" fill="#22d3aa"/>
+  <circle cx="200" cy="180" r="26" fill="#22d3aa"/>
+  <circle cx="320" cy="120" r="26" fill="#6ee7b7"/>
+  <!-- Edges -->
+  <line x1="106" y1="120" x2="174" y2="60" stroke="#a6accf" stroke-width="2"/>
+  <line x1="106" y1="120" x2="174" y2="180" stroke="#a6accf" stroke-width="2"/>
+  <line x1="226" y1="60" x2="294" y2="120" stroke="#a6accf" stroke-width="2"/>
+  <line x1="226" y1="180" x2="294" y2="120" stroke="#a6accf" stroke-width="2"/>
+  <!-- Labels -->
+  <text x="80" y="126" text-anchor="middle" font-family="system-ui" font-size="14" fill="#0f1226" font-weight="700">API</text>
+  <text x="320" y="126" text-anchor="middle" font-family="system-ui" font-size="14" fill="#0f1226" font-weight="700">DB</text>
+</svg>
