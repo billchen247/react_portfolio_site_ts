@@ -1,8 +1,7 @@
 # React Portfolio Site
 
-A small personal portfolio built with **React + Vite** in plain JavaScript (no
-TypeScript). Six pages, client-side routing, a contact form, and a Netlify
-deploy workflow.
+A small personal portfolio built with **React + Vite + TypeScript**. Six pages,
+client-side routing, a contact form, and a Netlify deploy workflow.
 
 This README is written for people new to React — if a step feels obvious,
 skip it.
@@ -13,8 +12,9 @@ skip it.
 
 - **React 18** — the UI library
 - **Vite 5** — the dev server + build tool (super fast)
+- **TypeScript 5** — static types for React components and props
 - **react-router-dom 6** — client-side routing between pages
-- No Redux, no TypeScript, no CSS framework — just CSS files per component
+- No Redux, no CSS framework — just CSS files per component
 - GitHub Actions workflow that builds and deploys to Netlify
 
 ---
@@ -73,7 +73,7 @@ You'll see something like:
   ➜  Local:   http://localhost:5173/
 ```
 
-Open <http://localhost:5173> in your browser. Edits to `.jsx`/`.css` files
+Open <http://localhost:5173> in your browser. Edits to `.tsx`/`.css` files
 hot-reload automatically — you almost never need to refresh manually.
 
 Stop the server with `Ctrl+C`.
@@ -102,7 +102,9 @@ npm run preview
 react_portfolio_site/
 ├── index.html               # Vite entry (the <div id="root"> lives here)
 ├── package.json             # Dependencies and npm scripts
-├── vite.config.js           # Vite plugin config
+├── tsconfig.json            # TypeScript compiler config (app)
+├── tsconfig.node.json       # TypeScript compiler config (vite.config.ts)
+├── vite.config.ts           # Vite plugin config
 ├── netlify.toml             # SPA redirects for Netlify deploys
 ├── public/                  # Files served as-is at the site root
 │   ├── logo.svg             #   → /logo.svg   (favicon)
@@ -110,19 +112,20 @@ react_portfolio_site/
 ├── .github/workflows/
 │   └── deploy.yml           # GitHub Actions: build + deploy to Netlify
 └── src/
-    ├── main.jsx             # Mounts <App /> into #root, wires BrowserRouter
-    ├── App.jsx              # Route table + Navbar/Footer shell
+    ├── main.tsx             # Mounts <App /> into #root, wires BrowserRouter
+    ├── App.tsx              # Route table + Navbar/Footer shell
+    ├── vite-env.d.ts        # Vite ambient types (import.meta.env, SVG imports)
     ├── components/
-    │   ├── Logo.jsx         # Inline-SVG hexagon logo with "AB" initials
-    │   ├── Navbar.jsx       # Sticky top nav, mobile hamburger
-    │   └── Footer.jsx
+    │   ├── Logo.tsx         # Inline-SVG hexagon logo with "BC" initials
+    │   ├── Navbar.tsx       # Sticky top nav, mobile hamburger
+    │   └── Footer.tsx
     ├── pages/
-    │   ├── Home.jsx         # Welcome + mission + confirmation banner
-    │   ├── About.jsx        # Bio, headshot, resume link
-    │   ├── Projects.jsx     # 3 project cards
-    │   ├── Education.jsx    # Timeline of qualifications
-    │   ├── Services.jsx     # Programming / Web / Mobile
-    │   └── Contact.jsx      # Form → captures state → redirects to /
+    │   ├── Home.tsx         # Welcome + mission + confirmation banner
+    │   ├── About.tsx        # Bio, headshot, resume link
+    │   ├── Projects.tsx     # 3 project cards
+    │   ├── Education.tsx    # Timeline of qualifications
+    │   ├── Services.tsx     # Programming / Web / Mobile
+    │   └── Contact.tsx      # Form → captures state → redirects to /
     ├── assets/              # SVG images imported by pages
     └── styles/
         ├── index.css        # Global reset + CSS variables (colors, spacing)
@@ -133,9 +136,9 @@ react_portfolio_site/
 
 - Each **page** is a plain React component that returns JSX. A page owns
   its own `.css` file, imported at the top.
-- **Routing** is defined in `App.jsx` with `<Routes>` and `<Route>`. Adding
+- **Routing** is defined in `App.tsx` with `<Routes>` and `<Route>`. Adding
   a page = create the component, add one `<Route>` entry, add one
-  `NAV_LINKS` entry in `Navbar.jsx`.
+  `NAV_LINKS` entry in `Navbar.tsx`.
 - **Static data** (project list, services, qualifications) is an array of
   plain objects at the top of each page component and rendered with
   `.map(...)`. No CMS, no fetch.
@@ -148,18 +151,18 @@ react_portfolio_site/
 
 ### Change your name, photo, or bio
 
-- Bio + name → `src/pages/About.jsx`
+- Bio + name → `src/pages/About.tsx`
 - Headshot → replace `src/assets/headshot.svg` with any image (keep the
   filename or update the import)
 - Site title / meta description → `index.html`
-- Brand name in nav → `src/components/Navbar.jsx` (`<span className="brand-name">`)
-- Footer copyright name → `src/components/Footer.jsx`
+- Brand name in nav → `src/components/Navbar.tsx` (`<span className="brand-name">`)
+- Footer copyright name → `src/components/Footer.tsx`
 
 ### Add a new project
 
-Open `src/pages/Projects.jsx` and add an entry to the `PROJECTS` array:
+Open `src/pages/Projects.tsx` and add an entry to the `PROJECTS` array:
 
-```jsx
+```tsx
 {
   id: 'my-new-project',        // any unique string
   title: 'My New Project',
@@ -170,21 +173,23 @@ Open `src/pages/Projects.jsx` and add an entry to the `PROJECTS` array:
 }
 ```
 
-Same shape works for `SERVICES` in `Services.jsx` and `QUALIFICATIONS` in
-`Education.jsx`.
+Same shape works for `SERVICES` in `Services.tsx` and `QUALIFICATIONS` in
+`Education.tsx`. Because each list has an explicit `Project` / `Service` /
+`Qualification` type, TypeScript will flag missing or misspelled fields
+right in your editor.
 
 ### Add a new page
 
-1. Create `src/pages/MyPage.jsx` (copy an existing page as a template).
-2. In `src/App.jsx`, import it and add:
+1. Create `src/pages/MyPage.tsx` (copy an existing page as a template).
+2. In `src/App.tsx`, import it and add:
 
-   ```jsx
+   ```tsx
    <Route path="/mypage" element={<MyPage />} />
    ```
 
-3. In `src/components/Navbar.jsx`, add to `NAV_LINKS`:
+3. In `src/components/Navbar.tsx`, add to `NAV_LINKS`:
 
-   ```jsx
+   ```tsx
    { to: '/mypage', label: 'My Page' }
    ```
 
@@ -242,12 +247,13 @@ so react-router deep links (e.g. `/about`) still work after a hard refresh.
 
 ## Scripts reference
 
-| Command           | What it does                                       |
-| ----------------- | -------------------------------------------------- |
-| `npm install`     | Install dependencies from `package.json`           |
-| `npm run dev`     | Start the Vite dev server with hot reload          |
-| `npm run build`   | Produce a static production build in `dist/`       |
-| `npm run preview` | Serve the built `dist/` locally (production check) |
+| Command             | What it does                                              |
+| ------------------- | --------------------------------------------------------- |
+| `npm install`       | Install dependencies from `package.json`                  |
+| `npm run dev`       | Start the Vite dev server with hot reload                 |
+| `npm run typecheck` | Run `tsc --noEmit` (types only, no output)                |
+| `npm run build`     | Typecheck, then produce a static production build in `dist/` |
+| `npm run preview`   | Serve the built `dist/` locally (production check)        |
 
 ---
 

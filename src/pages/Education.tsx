@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// Education.jsx — the /education page.
+// Education.tsx — the /education page.
 // Author: Bill Chen
 //
 // Concepts introduced here:
@@ -13,8 +13,18 @@
 // -----------------------------------------------------------------------------
 import './Education.css';
 
+// Shape of one qualification/certification entry in the timeline.
+type Qualification = {
+  id: string;
+  degree: string;
+  institution: string;
+  startYear: number;
+  endYear: number;
+  detail: string;
+};
+
 // Chronological list, most recent first. Each item renders as a timeline row.
-const QUALIFICATIONS = [
+const QUALIFICATIONS: Qualification[] = [
   {
     id: 'msc',
     degree: 'M.Sc., Computer Science',

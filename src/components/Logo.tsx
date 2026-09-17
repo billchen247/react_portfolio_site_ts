@@ -1,18 +1,21 @@
 // -----------------------------------------------------------------------------
-// Logo.jsx — a small, self-contained "brand mark" component.
+// Logo.tsx — a small, self-contained "brand mark" component.
 // Author: Bill Chen
 //
 // SVG can be written directly inside JSX. The tags look like HTML but attribute
 // names are camelCased (e.g. `stroke-width` in HTML → `strokeWidth` in JSX).
 //
-// Props syntax refresher:
-//   function Logo({ size = 40, title = 'Bill Chen logo' })
-//   ^ destructures the props object and gives each prop a default value.
-//
-// The parent can call it like:  <Logo />  (uses defaults)
-//                          or:  <Logo size={100} title="Custom label" />
+// The props type is declared explicitly with `LogoProps`; each field is
+// optional (note the `?:`) and has a default value in the destructuring
+// pattern below, so callers can use `<Logo />`, `<Logo size={100} />`, or
+// `<Logo size={100} title="Custom label" />`.
 // -----------------------------------------------------------------------------
-export default function Logo({ size = 40, title = 'Bill Chen logo' }) {
+type LogoProps = {
+  size?: number;
+  title?: string;
+};
+
+export default function Logo({ size = 40, title = 'Bill Chen logo' }: LogoProps) {
   return (
     // role="img" + aria-label together tell screen readers to treat the entire
     // SVG as a single labeled image, instead of announcing each shape inside.

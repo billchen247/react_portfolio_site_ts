@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// Home.jsx — the landing page ("/").
+// Home.tsx — the landing page ("/").
 // Author: Bill Chen
 //
 // Concepts introduced here:
@@ -15,8 +15,19 @@
 // -----------------------------------------------------------------------------
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import Logo from '../components/Logo.jsx';
+import Logo from '../components/Logo';
 import './Home.css';
+
+// Shape of the router state sent by the Contact form after submission.
+type ContactRedirectState = {
+  justSubmitted?: boolean;
+  firstName?: string;
+};
+
+// Shape of the local "message sent" banner state we keep on Home.
+type Confirmation = {
+  firstName: string;
+};
 
 export default function Home() {
   // Router hooks. `location` re-runs the component when the URL changes;
@@ -27,7 +38,7 @@ export default function Home() {
   // Local UI state for the "message sent" banner. We keep our OWN copy so the
   // banner survives even after we wipe the router state — otherwise pressing
   // browser Refresh on Home would re-show the banner from stale history.
-  const [confirmation, setConfirmation] = useState(null);
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
   // useEffect(fn, [deps]) → run `fn` after render whenever any dep changes.
   // Here: when we arrive at Home from the Contact form, `location.state`
@@ -35,10 +46,11 @@ export default function Home() {
   // state, then call navigate(..., { replace: true }) to clear the router
   // state so a refresh won't trigger this again.
   useEffect(() => {
-    // Optional chaining `?.` returns `undefined` if `location.state` is null,
-    // avoiding a "cannot read property of null" crash.
-    if (location.state?.justSubmitted) {
-      setConfirmation({ firstName: location.state.firstName || '' });
+    // `location.state` is typed as `unknown` by react-router, so we narrow
+    // it to the expected shape before reading fields.
+    const state = location.state as ContactRedirectState | null;
+    if (state?.justSubmitted) {
+      setConfirmation({ firstName: state.firstName || '' });
       navigate('/', { replace: true, state: null });
     }
   }, [location.state, navigate]);

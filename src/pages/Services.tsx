@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
-// Services.jsx — the /services page.
+// Services.tsx — the /services page.
 // Author: Bill Chen
 //
-// Structurally almost identical to Projects.jsx: a constant array of objects
+// Structurally almost identical to Projects.tsx: a constant array of objects
 // mapped to card elements. The takeaway is that this list-of-cards pattern
 // scales to almost any "gallery" page in a small site.
 // -----------------------------------------------------------------------------
@@ -11,8 +11,17 @@ import serviceWebImage from '../assets/service-web.svg';
 import serviceMobileImage from '../assets/service-mobile.svg';
 import './Services.css';
 
+// Shape of one service card.
+type Service = {
+  id: string;
+  title: string;
+  image: string;
+  imageAlt: string;
+  description: string;
+};
+
 // Add a service by adding a new object with an imported image and short description.
-const SERVICES = [
+const SERVICES: Service[] = [
   {
     id: 'programming',
     title: 'Programming',

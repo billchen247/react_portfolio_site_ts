@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// About.jsx — the /about page.
+// About.tsx — the /about page.
 // Author: Bill Chen
 //
 // Concepts introduced here:
@@ -7,7 +7,7 @@
 //     the import to the final asset URL and fingerprints it for cache-busting.
 //     That's why we can plug the imported value straight into <img src={...}>.
 //   • import.meta.env.BASE_URL — the deploy prefix (e.g. "/" locally,
-//     "/react_portfolio_site_js/" on GitHub Pages). Prepending it makes links
+//     "/react_portfolio_site_ts/" on GitHub Pages). Prepending it makes links
 //     to files in /public work no matter where the site is hosted.
 // -----------------------------------------------------------------------------
 import headshotImage from '../assets/headshot.svg';
@@ -54,7 +54,7 @@ export default function About() {
 
             `import.meta.env.BASE_URL` always ends with a slash, so simply
             concatenating "resume.pdf" produces "/resume.pdf" on Netlify and
-            "/react_portfolio_site_js/resume.pdf" on GitHub Pages.
+            "/react_portfolio_site_ts/resume.pdf" on GitHub Pages.
 
             `target="_blank"` opens in a new tab; `rel="noopener noreferrer"`
             is a security best-practice for external tabs; `download` hints to

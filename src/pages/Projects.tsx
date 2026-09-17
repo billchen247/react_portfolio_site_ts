@@ -1,9 +1,9 @@
 // -----------------------------------------------------------------------------
-// Projects.jsx — the /projects page.
+// Projects.tsx — the /projects page.
 // Author: Bill Chen
 //
 // Concepts introduced here:
-//   • Data-driven rendering: keep the list of projects as a plain JS array of
+//   • Data-driven rendering: keep the list of projects as a plain TS array of
 //     objects, then use `.map(...)` to turn each object into a card. When you
 //     want another project, add another object — no JSX changes required.
 //   • The `key` prop when rendering lists: React uses `key` to match items
@@ -18,10 +18,21 @@ import projectMobileImage from '../assets/project-mobile.svg';
 import projectApiImage from '../assets/project-api.svg';
 import './Projects.css';
 
+// Shape of one project card. Declaring the type once means every entry in
+// the PROJECTS array must supply the same fields — a nice compile-time check.
+type Project = {
+  id: string;
+  title: string;
+  image: string;
+  imageAlt: string;
+  role: string;
+  outcome: string;
+};
+
 // Each entry drives one project card. Add a new object to add another project.
 // UPPER_SNAKE_CASE is a common convention for module-level constants that
 // never change after being defined.
-const PROJECTS = [
+const PROJECTS: Project[] = [
   {
     id: 'insight-dashboard',
     title: 'Insight Analytics Dashboard',

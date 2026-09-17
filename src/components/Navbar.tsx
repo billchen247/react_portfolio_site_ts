@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// Navbar.jsx — the sticky top navigation bar.
+// Navbar.tsx — the sticky top navigation bar.
 // Author: Bill Chen
 //
 // Concepts introduced here:
@@ -13,16 +13,24 @@
 // -----------------------------------------------------------------------------
 import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import Logo from './Logo.jsx';
+import Logo from './Logo';
 import './Navbar.css';
 
+// Shape of one item in NAV_LINKS. Declaring the type explicitly lets
+// TypeScript catch typos (e.g. `lable` instead of `label`) at compile time.
+type NavLinkItem = {
+  to: string;
+  label: string;
+  end?: boolean;
+};
+
 // Data-driven UI: define the list of pages once, then render them with .map().
-// Adding a page = add one entry here (and one <Route> in App.jsx).
+// Adding a page = add one entry here (and one <Route> in App.tsx).
 //
 // `end: true` on "/" makes NavLink treat it as exact-match only — otherwise
 // "/" would be considered "active" on every page since every path starts
 // with "/".
-const NAV_LINKS = [
+const NAV_LINKS: NavLinkItem[] = [
   { to: '/', label: 'Home', end: true },
   { to: '/about', label: 'About Me' },
   { to: '/projects', label: 'Projects' },
@@ -38,7 +46,7 @@ export default function Navbar() {
   //
   // React re-runs this function every render, but useState remembers the
   // last value across renders — that's what makes it "state".
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   // Small helper we reuse from multiple click handlers below.
   const closeMobileMenu = () => setIsMobileMenuOpen(false);

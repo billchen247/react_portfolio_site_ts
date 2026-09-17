@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
-// App.jsx — the top-level "shell" component.
+// App.tsx — the top-level "shell" component.
 // Author: Bill Chen
 //
-// This is the single React component that main.jsx renders. It defines the
+// This is the single React component that main.tsx renders. It defines the
 // layout that surrounds every page (Navbar on top, Footer on the bottom) and
 // tells react-router which page component to show for each URL path.
 // -----------------------------------------------------------------------------
@@ -12,27 +12,27 @@
 import { Routes, Route } from 'react-router-dom';
 
 // Component imports use relative paths. The `./components/` prefix means
-// "look in the components folder next to this file." The `.jsx` extension
-// is optional in Vite but including it is explicit and IDE-friendly.
-import Navbar from './components/Navbar.jsx';
-import Footer from './components/Footer.jsx';
+// "look in the components folder next to this file." Extensions are omitted;
+// TypeScript resolves `.tsx` automatically.
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 
 // Each "page" is just a plain React component — nothing special makes it a
 // page except that we mount it inside a <Route>.
-import Home from './pages/Home.jsx';
-import About from './pages/About.jsx';
-import Projects from './pages/Projects.jsx';
-import Education from './pages/Education.jsx';
-import Services from './pages/Services.jsx';
-import Contact from './pages/Contact.jsx';
+import Home from './pages/Home';
+import About from './pages/About';
+import Projects from './pages/Projects';
+import Education from './pages/Education';
+import Services from './pages/Services';
+import Contact from './pages/Contact';
 
 // Importing a CSS file for its side-effect: Vite bundles it and injects it
 // into the page. There's no variable to import — just the URL.
 import './styles/App.css';
 
-// A React "function component" is any JavaScript function whose name starts
-// with a capital letter and returns JSX. `export default` makes it the
-// primary export so other files can do `import App from './App.jsx'`.
+// A React "function component" is any function whose name starts with a
+// capital letter and returns JSX. `export default` makes it the primary
+// export so other files can do `import App from './App'`.
 export default function App() {
   return (
     // JSX must return a single parent element. We use a <div> here, but

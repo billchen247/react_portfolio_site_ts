@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// Contact.jsx — the /contact page and its form.
+// Contact.tsx — the /contact page and its form.
 // Author: Bill Chen
 //
 // Concepts introduced here:
@@ -18,13 +18,23 @@
 //     hands `X` to the destination page, which reads it with useLocation().
 // -----------------------------------------------------------------------------
 import { useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Contact.css';
+
+// Shape of the form's state. Each key is the `name` attribute of one input.
+type ContactFormValues = {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  message: string;
+};
 
 // Empty shape used both for the initial state and to reset after submission.
 // Defining it once at module scope avoids re-creating the object on every
 // render and keeps the "what fields does this form have?" answer in one place.
-const EMPTY_FORM = {
+const EMPTY_FORM: ContactFormValues = {
   firstName: '',
   lastName: '',
   phone: '',
@@ -36,22 +46,30 @@ export default function Contact() {
   // `formValues` holds ALL five field values as one object. Keeping related
   // state together like this is usually simpler than five separate useState
   // calls when the fields always change/reset together.
-  const [formValues, setFormValues] = useState(EMPTY_FORM);
+  const [formValues, setFormValues] = useState<ContactFormValues>(EMPTY_FORM);
   const navigate = useNavigate();
 
   // One handler serves every input. It reads the input's `name` and `value`
   // from the DOM event, then produces a new object with just that field
   // updated. Notice we DO NOT mutate the old object (React needs a new
   // reference to detect the change and re-render).
-  const handleFieldChange = (event) => {
+  //
+  // The event type covers both <input> and <textarea>; we `as` the `name`
+  // to a known key of the form so the computed-property update is type-safe.
+  const handleFieldChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = event.target;
     // Object spread: copy all previous keys, then overwrite the one that
     // changed. `[name]` is a "computed property key" — the key is the value
     // of the `name` variable, not the literal string "name".
-    setFormValues((previousValues) => ({ ...previousValues, [name]: value }));
+    setFormValues((previousValues) => ({
+      ...previousValues,
+      [name as keyof ContactFormValues]: value
+    }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     // Without this, the browser would try to POST the form to the current
     // URL and refresh the page, which would blow away our React app state.
     event.preventDefault();
@@ -68,7 +86,7 @@ export default function Contact() {
     const submittedFirstName = formValues.firstName;
     setFormValues(EMPTY_FORM);
 
-    // navigate() with `state` passes data to the next page. Home.jsx reads
+    // navigate() with `state` passes data to the next page. Home.tsx reads
     // it via useLocation().state and renders the "Thanks, ___" banner.
     navigate('/', { state: { justSubmitted: true, firstName: submittedFirstName } });
   };
@@ -184,7 +202,7 @@ export default function Contact() {
                 HTML where the text goes between the opening/closing tags. */}
             <textarea
               name="message"
-              rows="5"
+              rows={5}
               value={formValues.message}
               onChange={handleFieldChange}
               required
