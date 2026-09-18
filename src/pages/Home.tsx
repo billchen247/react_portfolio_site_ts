@@ -36,6 +36,28 @@ export default function Home() {
   // initial value, TypeScript would otherwise infer state as `null` only.
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
+  // Second teaching example: a tiny loading state.
+  // This effect runs once when the component first loads.
+  // It starts a timer and then flips `isLoading` to false after 2 seconds.
+  // This is a classic beginner example for "do something after render".
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    // Cleanup: if the component unmounts before the timer finishes, we cancel it.
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  // Student summary:
+  // "useEffect is the place to run code after the component has rendered.
+  //  It is useful when the page needs to react to things like route changes,
+  //  data loading, or state updates. In this file, we check whether another
+  //  page sent us a message saying the form was just submitted, and then we
+  //  show a confirmation banner."
+  //
   // useEffect runs AFTER React renders the component.
   // Think of it as "do this after the page is shown".
   // Here, we use it to react to a route change: when Contact sends us back
@@ -74,7 +96,17 @@ export default function Home() {
 
   return (
     <section>
-      {confirmation && (
+      {isLoading ? (
+        <div
+          className="card border-l-4 border-l-accent"
+          role="status"
+          aria-live="polite"
+        >
+          Loading page content... please wait.
+        </div>
+      ) : (
+        <>
+          {confirmation && (
         // Confirmation banner — an accent-tinted panel with a dismiss button.
         // `role="status" aria-live="polite"` announces the text to screen
         // readers without stealing focus.
@@ -145,6 +177,8 @@ export default function Home() {
           found it.
         </p>
       </div>
+        </>
+      )}
     </section>
   );
 }
