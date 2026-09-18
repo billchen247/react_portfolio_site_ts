@@ -36,13 +36,38 @@ export default function Home() {
   // initial value, TypeScript would otherwise infer state as `null` only.
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
+  // useEffect runs AFTER React renders the component.
+  // Think of it as "do this after the page is shown".
+  // Here, we use it to react to a route change: when Contact sends us back
+  // with a redirect state saying the form was submitted, we show a success
+  // banner and then immediately clear the router state.
+  //
+  // Why this matters:
+  // - the initial render happens first
+  // - then this effect checks the URL/state
+  // - if the user just submitted a form, we update the component state
+  // - React re-renders, and the banner appears
+  //
+  // The dependency array tells React when to re-run the effect:
+  // - [location.state, navigate] means: run again when the route state or
+  //   navigate function changes.
+  // - `navigate` is included because it is a function from React Router and
+  //   we use it inside the effect.
   useEffect(() => {
+    // `location.state` is the data sent when navigating with something like:
+    // navigate('/about', { state: { justSubmitted: true, firstName: 'Alice' } })
+    // Here we read it and extract the data if it exists.
     const state = location.state as ContactRedirectState | null;
+
+    // If the Contact page told us the form was submitted, show the banner.
     if (state?.justSubmitted) {
       setConfirmation({
         firstName: state.firstName || '',
-        lastName: state.lastName || "",
-       });
+        lastName: state.lastName || '',
+      });
+
+      // Clear the router state so the message does not keep showing again on
+      // refresh or if the user navigates back to the home page.
       navigate('/', { replace: true, state: null });
     }
   }, [location.state, navigate]);
